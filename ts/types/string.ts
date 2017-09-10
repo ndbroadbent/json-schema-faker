@@ -4,6 +4,7 @@ import dateTime from '../generators/dateTime';
 import coreFormat from '../generators/coreFormat';
 import optionAPI from '../api/option';
 import format from '../api/format';
+import random from '../core/random';
 import utils from '../core/utils';
 
 function generateFormat(value: IStringSchema, invalid: () => string): string {
@@ -26,6 +27,14 @@ function generateFormat(value: IStringSchema, invalid: () => string): string {
     case 'ipv6':
     case 'uri':
       return coreFormat(value.format);
+    case 'country': {
+      if (Alpaca) {
+        var countries = Alpaca.normalizedViews.base.messages.countries;
+        var country_key = random.pick(Object.keys(countries));
+        return countries[country_key];
+      }
+    }
+
     default:
       if (typeof callback === 'undefined') {
         if (optionAPI('failOnInvalidFormat')) {
