@@ -16,7 +16,7 @@ function produce(): string {
  *
  * @returns {string}
  */
-function thunkGenerator(min: number = 0, max: number = 140): string {
+function thunkGenerator(min: number = 3, max: number = 140): string {
   var min: number = Math.max(0, min),
     max: number = random.number(min, max),
     result: string = produce();
