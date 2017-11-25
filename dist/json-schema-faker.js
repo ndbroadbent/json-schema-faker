@@ -5,7 +5,7 @@
  * Copyright (c) 2014-2017 Alvaro Cabrera & Tomasz Ducin
  * Released under the MIT license
  *
- * Date: 2017-07-08 01:12:12.776Z
+ * Date: 2017-11-25 12:26:13.586Z
  */
 
 (function (global, factory) {
@@ -63,7 +63,7 @@ function bundle(parser, options) {
 function crawl(parent, key, path, pathFromRoot, inventory, $refs, options) {
   var obj = key === null ? parent : parent[key];
 
-  if (obj && typeof obj === 'object') {
+  if (obj && !(obj instanceof RegExp) && typeof obj === 'object') {
     if ($Ref.is$Ref(obj)) {
       inventory$Ref(parent, key, path, pathFromRoot, inventory, $refs, options);
     }
@@ -13848,7 +13848,7 @@ IncomingMessage.prototype._onXHRProgress = function () {
 				self.push(new Buffer(response))
 				break
 			}
-			// Falls through in IE8	
+			// Falls through in IE8
 		case 'text':
 			try { // This will fail when readyState = 3 in IE9. Switch mode and wait for readyState = 4
 				response = xhr.responseText
@@ -15617,6 +15617,8 @@ function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
 
+'use strict';
+
 // https://gist.github.com/pjt33/efb2f1134bab986113fd
 
 function URLUtils(url, baseURL) {
@@ -15868,7 +15870,7 @@ var deepExtend = module.exports = function (/*obj_1, [obj_2], [obj_N]*/) {
 	// convert arguments to array and cut off target object
 	var args = Array.prototype.slice.call(arguments, 1);
 
-	var val, src, clone;
+	var val, src;
 
 	args.forEach(function (obj) {
 		// skip argument if isn't an object, is null, or is an array
@@ -15918,6 +15920,14 @@ var deepExtend = module.exports = function (/*obj_1, [obj_2], [obj_N]*/) {
 	return target;
 };
 });
+
+'use strict';
+
+
+
+
+
+
 
 function copy(_, obj, refs, parent, resolve) {
   var target =  Array.isArray(obj) ? [] : {};
@@ -15996,6 +16006,12 @@ var clone = module.exports = function(obj, seen) {
   return target;
 };
 });
+
+'use strict';
+
+
+
+
 
 var SCHEMA_URI = [
   'http://json-schema.org/schema#',
@@ -17380,7 +17396,7 @@ var registry = new Registry();
  * @param callback
  * @returns {any}
  */
-function formatAPI(nameOrFormatMap, callback) {
+function formatAPI$1(nameOrFormatMap, callback) {
     if (typeof nameOrFormatMap === 'undefined') {
         return registry.list();
     }
@@ -17631,7 +17647,7 @@ function number(min, max, defMin, defMax, hasPrecision) {
     }
     var result = getRandom(min, max);
     if (!hasPrecision) {
-        return parseInt(result + '', 10);
+        return Math.round(result);
     }
     return result;
 }
@@ -17808,7 +17824,8 @@ var arrayType = function arrayType(value, path, resolve, traverseCallback) {
             minItems = maxItems;
         }
     }
-    var length = random.number(minItems, maxItems, 1, 5), 
+    var length = (maxItems != null && optionAPI('alwaysFakeOptionals')) ?
+        maxItems : random.number(minItems, maxItems, 1, 5), 
     // TODO below looks bad. Should additionalItems be copied as-is?
     sample = typeof value.additionalItems === 'object' ? value.additionalItems : {};
     for (var current = items.length; current < length; current++) {
@@ -17824,7 +17841,7 @@ var arrayType = function arrayType(value, path, resolve, traverseCallback) {
 
 var MIN_INTEGER = -100000000;
 var MAX_INTEGER = 100000000;
-var numberType = function numberType(value) {
+var numberType$1 = function numberType(value) {
     var min = typeof value.minimum === 'undefined' ? MIN_INTEGER : value.minimum, max = typeof value.maximum === 'undefined' ? MAX_INTEGER : value.maximum, multipleOf = value.multipleOf;
     if (multipleOf) {
         max = Math.floor(max / multipleOf) * multipleOf;
@@ -17849,7 +17866,7 @@ var numberType = function numberType(value) {
 // returns floating point numbers, and `integer` type truncates the fraction
 // part, leaving the result as an integer.
 var integerType = function integerType(value) {
-    var generated = numberType(value);
+    var generated = numberType$1(value);
     // whether the generated number is positive or negative, need to use either
     // floor (positive) or ceil (negative) function to get rid of the fraction
     return generated > 0 ? Math.floor(generated) : Math.ceil(generated);
@@ -17866,7 +17883,7 @@ var LIPSUM_WORDS = ('Lorem ipsum dolor sit amet consectetur adipisicing elit sed
  * @param length
  * @returns {Array.<string>}
  */
-function wordsGenerator(length) {
+function wordsGenerator$1(length) {
     var words = random.shuffle(LIPSUM_WORDS);
     return words.slice(0, length);
 }
@@ -17942,7 +17959,7 @@ var objectType = function objectType(value, path, resolve, traverseCallback) {
             break;
         }
         if (allowsAdditional) {
-            var word = wordsGenerator(1) + utils.randexp('[a-f\\d]{1,3}');
+            var word = wordsGenerator$1(1) + utils.randexp('[a-f\\d]{1,3}');
             if (!props[word]) {
                 props[word] = additionalProperties || anyType;
                 current += 1;
@@ -17970,15 +17987,15 @@ var objectType = function objectType(value, path, resolve, traverseCallback) {
  */
 function produce() {
     var length = random.number(1, 5);
-    return wordsGenerator(length).join(' ');
+    return wordsGenerator$1(length).join(' ');
 }
 /**
  * Generates randomized concatenated string based on words generator.
  *
  * @returns {string}
  */
-function thunkGenerator(min, max) {
-    if (min === void 0) { min = 0; }
+function thunkGenerator$1(min, max) {
+    if (min === void 0) { min = 3; }
     if (max === void 0) { max = 140; }
     var min = Math.max(0, min), max = random.number(min, max), result = produce();
     // append until length is reached
@@ -18009,7 +18026,7 @@ var MOST_NEAR_DATETIME = 2524608000000;
  *
  * @returns {string}
  */
-function dateTimeGenerator() {
+function dateTimeGenerator$1() {
     var date = new Date();
     var days = random.number(-1000, MOST_NEAR_DATETIME);
     date.setTime(date.getTime() - days);
@@ -18039,13 +18056,13 @@ function coreFormatGenerator(coreFormat) {
 }
 
 function generateFormat(value, invalid) {
-    var callback = formatAPI(value.format);
+    var callback = formatAPI$1(value.format);
     if (typeof callback === 'function') {
         return callback(value);
     }
     switch (value.format) {
         case 'date-time':
-            return dateTimeGenerator();
+            return dateTimeGenerator$1();
         case 'ipv4':
             return ipv4Generator();
         case 'regex':
@@ -18056,6 +18073,13 @@ function generateFormat(value, invalid) {
         case 'ipv6':
         case 'uri':
             return coreFormatGenerator(value.format);
+        case 'country': {
+            if (Alpaca) {
+                var countries = Alpaca.normalizedViews.base.messages.countries;
+                var country_key = random.pick(Object.keys(countries));
+                return countries[country_key];
+            }
+        }
         default:
             if (typeof callback === 'undefined') {
                 if (optionAPI('failOnInvalidFormat')) {
@@ -18083,16 +18107,16 @@ var stringType = function stringType(value) {
         }
     }
     if (value.format) {
-        output = generateFormat(value, function () { return thunkGenerator(minLength, maxLength); });
+        output = generateFormat(value, function () { return thunkGenerator$1(minLength, maxLength); });
     }
     else if (value.pattern) {
         output = utils.randexp(value.pattern);
     }
     else {
-        output = thunkGenerator(minLength, maxLength);
+        output = thunkGenerator$1(minLength, maxLength);
     }
     while (output.length < minLength) {
-        output += Math.random() > 0.7 ? thunkGenerator() : utils.randexp('.+');
+        output += Math.random() > 0.7 ? thunkGenerator$1() : utils.randexp('.+');
     }
     if (output.length > maxLength) {
         output = output.substr(0, maxLength);
@@ -18105,7 +18129,7 @@ var typeMap = {
     null: nullType,
     array: arrayType,
     integer: integerType,
-    number: numberType,
+    number: numberType$1,
     object: objectType,
     string: stringType
 };
@@ -18116,6 +18140,9 @@ function traverse(schema, path, resolve) {
     if (!schema) {
         return;
     }
+    if (optionAPI('useDefaultValue') && 'default' in schema) {
+        return schema.default;
+    }
     if (Array.isArray(schema.enum)) {
         return random.pick(schema.enum);
     }
@@ -18125,9 +18152,6 @@ function traverse(schema, path, resolve) {
     }
     if (typeof schema.generate === 'function') {
         return utils.typecast(schema.generate(), schema);
-    }
-    if (optionAPI('useDefaultValue') && 'default' in schema) {
-        return schema.default;
     }
     // TODO remove the ugly overcome
     var type = schema.type;
@@ -18293,7 +18317,7 @@ jsf.resolve = function (schema, refs, cwd) {
     }).then(function (sub) { return jsf(sub, refs); });
 };
 jsf.utils = utils;
-jsf.format = formatAPI;
+jsf.format = formatAPI$1;
 jsf.option = optionAPI;
 // built-in support
 container.define('pattern', utils.randexp);
